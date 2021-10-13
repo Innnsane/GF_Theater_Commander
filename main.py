@@ -32,6 +32,9 @@ def theater_area_setting(theater_area_id):
             COEF['AR'] = area["boss_score_coef"].split(";")[3]
             COEF['MG'] = area["boss_score_coef"].split(";")[4]
             COEF['SG'] = area["boss_score_coef"].split(";")[5]
+
+            global MAX_DOLL
+            global ADVANTAGE
             MAX_DOLL = 5 + 10 + int(area["theater_spare_gun_num"])
             ADVANTAGE = area["advantage_gun"].split(",")
 
