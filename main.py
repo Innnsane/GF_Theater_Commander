@@ -95,8 +95,9 @@ def main():
     gun_info = open_json(r'resource/gun_info.json', "utf-8")
     equip_info = open_json(r'resource/equip_info.json', "utf-8")
     equip_text = open_text(r'resource/equip.txt')
-    my_dolls = user_info_handle()["my_dolls"]
-    my_equips = user_info_handle()["my_equips"]
+    user_info = user_info_handle()
+    my_dolls = user_info["my_dolls"]
+    my_equips = user_info["my_equips"]
 
     # %% 计算各人形不同配装的效能
     choices = {}
@@ -144,29 +145,38 @@ def main():
             recipe_content[f"{stc_to_text(equip_text, j[0]['name'])}_{j[1]}"] -= 1
             recipe_content[f"{stc_to_text(equip_text, k[0]['name'])}_{k[1]}"] -= 1
             choices[recipe_name] = recipe_content
-    print(len(choices.items()))
+    print("Choice number", len(choices.items()))
 
     # %%
     resource = {}
-    for id, doll in my_dolls.items():
+    for _, doll in my_dolls.items():
         if doll['gun_level'] > 0:
             resource[doll['name']] = 1
-    for id, equip in my_equips.items():
+    for _, equip in my_equips.items():
         if equip['level_10'] > 0:
             resource[f"{equip['name']}_10"] = equip['level_10']
         if equip['level_00'] > 0:
             resource[f"{equip['name']}_0"] = equip['level_00']
     resource['count'] = MAX_DOLL
     resource['score'] = 0
+
     lp_vars = {}
+    # 定义线性规划，求解最大值
     problem = lp.LpProblem('battlefield', lp.LpMaximize)
     for k, recipe in choices.items():
+
+        # 每个人形和其装备选择构成一个变量
         lp_vars[k] = lp.LpVariable(k, cat=lp.LpBinary)
         for r, c in recipe.items():
+            # 全部的装备数量减去使用的装备大于等于0
             resource[r] += c * lp_vars[k]
+
+        # 选取的人形数量小于等于MAX_DOLL
         resource['count'] -= lp_vars[k]
     for k, v in resource.items():
         problem += v >= 0, k
+
+    # 线性规划求解分数的最大值
     problem += resource['score']
     print(problem.solve())
     print(resource['score'].value())
@@ -180,6 +190,6 @@ def main():
     # %%
 
 
-theater_area_setting("748")
-print(user_info_handle())
+theater_area_id = input("-- Please type in the target theater area id -- ")
+theater_area_setting(theater_area_id)
 main()
