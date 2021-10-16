@@ -35,8 +35,10 @@ def theater_area_setting(theater_area_id):
 
             global MAX_DOLL
             global ADVANTAGE
+            global ENVIRONMENT
             MAX_DOLL = 5 + 10 + int(area["theater_spare_gun_num"])
             ADVANTAGE = area["advantage_gun"].split(",")
+            ENVIRONMENT = "night" if (area["boss"].split("-")[1] == "1") else "day"
 
 
 def user_info_handle():
@@ -190,6 +192,5 @@ def main():
     # %%
 
 
-theater_area_id = input("-- Please type in the target theater area id -- ")
-theater_area_setting(theater_area_id)
+theater_area_setting(input("-- Please type in the target theater area id -- "))
 main()
